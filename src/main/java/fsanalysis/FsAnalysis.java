@@ -58,7 +58,7 @@ public class FsAnalysis {
 //      FsResDisplay fsResDisplay =
 //          fs_analysis("002125", "2016-11-21", "14:00:00", "2016-11-22", "10:25:00", 10, Unit.min, 0);
       FsResDisplay fsResDisplay =
-          fs_analysis("002125", "2016-07-07", "09:00:00", "2016-11-25", "15:00:00", 1, Unit.day, 1000000);
+          fs_analysis("000798", "2016-06-21", "09:00:00", "2016-11-28", "15:00:00", 1, Unit.day, 0);
 
       FileWriter fw = null;
       BufferedWriter bfw = null;

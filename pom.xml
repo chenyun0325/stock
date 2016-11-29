@@ -15,6 +15,7 @@
         <mybatis-spring_version>1.2.2</mybatis-spring_version>
         <mysql-connector-java_version>5.1.30</mysql-connector-java_version>
         <druid_version>1.0.13</druid_version>
+        <storm.topology>stormpython.WordCount</storm.topology>
     </properties>
 
     <dependencies>
@@ -72,7 +73,44 @@
             <version>${mysql-connector-java_version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.storm</groupId>
+            <artifactId>storm-core</artifactId>
+            <version>0.10.0</version>
+            <!--<scope>provided</scope>-->
+        </dependency>
+
 
     </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <!-- Where the Python bits are kept -->
+                <directory>${basedir}/multilang</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>java</executable>
+                    <includeProjectDependencies>true</includeProjectDependencies>
+                    <includePluginDependencies>false</includePluginDependencies>
+                    <classpathScope>compile</classpathScope>
+                    <mainClass>${storm.topology}</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 
 </project>
