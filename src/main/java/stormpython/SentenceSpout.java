@@ -15,9 +15,9 @@ sentencespout.py using Python.
 */
 public class SentenceSpout extends ShellSpout implements IRichSpout {
     // Invoke the python spout
-    public SentenceSpout() {
+    public SentenceSpout(String codelist) {
         //super("python", "fsrealspout_test.py");
-        super("python", "fsrealspout.py");
+        super("python", "fsrealspout_test.py",codelist);
     }
 
     // Declare that we emit a 'sentence' field

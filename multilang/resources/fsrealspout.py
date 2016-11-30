@@ -5,6 +5,7 @@ import random
 import tushare as ts
 import multiprocessing
 import time
+import sys
 # Define some sentences
 SENTENCES = """
 the cow jumped over the moon
@@ -25,6 +26,8 @@ class FsRealSpout(storm.Spout):
     # Process the next tuple
     def nextTuple(self):
         # 停止一段时间(设置状态位)
+        for i in sys.argv:
+            print i
         time.sleep(5)
         batch =10
         bases = ts.get_stock_basics().head(10)
@@ -42,8 +45,6 @@ class FsRealSpout(storm.Spout):
             res = pool.apply_async(ts.get_realtime_quotes, (batch_data,))
             results.append(res)
             # get_stock_hist_data_batch(code_list = batch_data,start=start,end=end,sh_df=sh_df,sz_df=sz_df,cyb_df=cyb_df,table_name=table_name)
-        pool.close()
-        pool.join()
         #等待执行完毕
         for item in results:
             for i,row in item.get().iterrows():
@@ -68,6 +69,8 @@ class FsRealSpout(storm.Spout):
              storm.logInfo("Emiting %s" % sentence)
              storm.logInfo("Emiting code:%s row:%s" %(code,json))
              storm.emit([code,json])
+             pool.close()
+             pool.join()
 
 # Start the spout when it's invoked
 FsRealSpout().run()
