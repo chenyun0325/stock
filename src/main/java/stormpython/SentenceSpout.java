@@ -2,7 +2,6 @@ package stormpython;
 
 import java.util.Map;
 
-import backtype.storm.Config;
 import backtype.storm.spout.ShellSpout;
 import backtype.storm.topology.IRichSpout;
 import backtype.storm.topology.OutputFieldsDeclarer;

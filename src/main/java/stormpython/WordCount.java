@@ -26,7 +26,8 @@ public class WordCount
 	        int total = codes.length;
 	        int batch = total/batchsize;
 	        //int mod = total%batchsize;
-	        BoltDeclarer splitBolt = builder.setBolt("SplitBolt", new Bolt1(), 4);
+	    Bolt2 bolt = new Bolt2(100000,100,20);
+	    BoltDeclarer splitBolt = builder.setBolt("SplitBolt", bolt, 4);
 	        for (int i=0;i<=batch;i++){
 			int start = i*batchsize;
 			int end = (i+1)*batchsize;
@@ -44,6 +45,8 @@ public class WordCount
 			splitBolt.fieldsGrouping("FsRealSpout" + i, new Fields("code"));
 			codeslist.clear();
 		}
+	    builder.setBolt("slidBolt",new SlidingWindowBolt(100,10,0.001,100000),2).fieldsGrouping("SplitBolt",new Fields
+			    ("code"));
 
 		// Counter consumes words and emits words and counts
 		// FieldsGrouping is used so the same words get routed
