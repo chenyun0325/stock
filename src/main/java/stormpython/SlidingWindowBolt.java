@@ -136,10 +136,11 @@ public class SlidingWindowBolt extends BaseBasicBolt {
     try {
       fw = new FileWriter(fileName, false);
       bfw = new BufferedWriter(fw);
+      long time = System.currentTimeMillis();
       for (String code : maps.keySet()) {
         List<SlidingWindowPriceRes> list = maps.get(code);
         String json = JSONArray.fromObject(list).toString();
-        String item = code + ":" +"@"+"time:"+System.currentTimeMillis()+"@"+"content:"+ json;
+        String item = code + ":" + "@" + "time:" + time + "@" + "content:" + json;
         bfw.write(item);
         bfw.newLine();
       }

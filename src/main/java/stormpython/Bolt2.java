@@ -208,10 +208,11 @@ public class Bolt2 extends BaseBasicBolt {
     try {
       fw = new FileWriter(fileName, true);
       bfw = new BufferedWriter(fw);
+      long time = System.currentTimeMillis();
       for (String code : maps.keySet()) {
         List<FsIndexRes> list = maps.get(code);
         String json = JSONArray.fromObject(list).toString();
-        String item = code + ":" +"@"+"time:"+System.currentTimeMillis()+"@"+"content:"+ json;
+        String item = code + ":" + "@" + "time:" + time + "@" + "content:" + json;
         bfw.write(item);
         bfw.newLine();
       }
