@@ -10,10 +10,14 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 import backtype.storm.topology.BasicOutputCollector;
@@ -38,20 +42,68 @@ public class SlidingWindowBolt extends BaseBasicBolt {
 
   Map<String ,Deque<SlidingWindowPriceRes>> code_wid_price_map = new ConcurrentHashMap<>();
 
-  Map<String ,List<SlidingWindowPriceRes>> code_jd_map = new ConcurrentHashMap<>();//存储股票夹单数据
+  static Map<String ,List<SlidingWindowPriceRes>> code_jd_map = new ConcurrentHashMap<>();//存储股票夹单数据
+
+  static Map<String ,List<SlidingWindowPriceRes>> code_jd_his_map = new ConcurrentHashMap<>();//存储股票夹单历史数据
+
+  private int maxLen;//需要清理list的最大长度
+
   private String jd_file ="D:/stock_data/holders/jd.txt";
+  private static  String jd_file_thead ="D:/stock_data/holders/jd_thead.txt";
+  private static  String jd_his_file_thead ="D:/stock_data/holders/jd_his_thead.txt";
+
 
   private int max_size;//最大大小
-  private int wind_size;//窗口大小
+  private int  wind_size;//窗口大小
   private double price_dif_var ;//方差大小
+  private double price_diff_var1;
   private double amount;//金额大小
+  private double amount1;//金额大小1 // TODO: 2016/12/6 不同业务参数区间不同输出
 
+
+  static {
+     new Thread("data_out") {
+      @Override
+      public void run() {
+        while (true) {
+          try {
+            Thread.sleep(5000);
+            printResThead(jd_file_thead, code_jd_map,false);
+            //设置执行时间
+            Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);//每天
+            //定制每天的15:02:00执行，
+            calendar.set(year, month, day, 15, 2, 00);
+            Date date = calendar.getTime();
+            //定点执行任务
+            TimerTask timerTask=  new TimerTask() {
+              @Override
+              public void run() {
+                printResThead(jd_his_file_thead,code_jd_his_map,true);
+                code_jd_his_map.clear();//保存之后清空数据
+              }
+            };
+            Timer timer = new Timer();
+            timer.schedule(timerTask,date);
+          } catch (Exception e) {
+            log_error.error("data_out error:", e);
+            e.printStackTrace();
+            continue;
+          }
+        }
+      }
+    }.start();
+  }
   public SlidingWindowBolt(int max_size, int wind_size,double price_dif_var,double amount ) {
     this.max_size = max_size;
     this.wind_size = wind_size;
     this.price_dif_var=price_dif_var;
     this.amount=amount;
   }
+
+
 
   public void execute(Tuple input, BasicOutputCollector collector) {
 
@@ -121,8 +173,16 @@ public class SlidingWindowBolt extends BaseBasicBolt {
   public Map<String,List<SlidingWindowPriceRes>> transferRes(Map<String,List<SlidingWindowPriceRes>> map,String code,SlidingWindowPriceRes item){
 
     List<SlidingWindowPriceRes> fsDatas = map.get(code);
+    int size = fsDatas.size();
+    if (size > maxLen) {
+      code_jd_his_map.put(code,fsDatas);//存储历史数据
+      fsDatas = new ArrayList<>();//赋予新对象
+    }
     if (fsDatas != null) {
       fsDatas.add(item);
+      if (size > maxLen) {
+        map.put(code,fsDatas);
+      }
     }else {
       List<SlidingWindowPriceRes> fs_list = new ArrayList<>();
       fs_list.add(item);
@@ -157,4 +217,32 @@ public class SlidingWindowBolt extends BaseBasicBolt {
       }
     }
   }
+  public static void printResThead(String fileName, Map<String, List<SlidingWindowPriceRes>> maps,boolean appendFlag) {
+    FileWriter fw = null;
+    BufferedWriter bfw = null;
+    try {
+      fw = new FileWriter(fileName, appendFlag);
+      bfw = new BufferedWriter(fw);
+      long time = System.currentTimeMillis();
+      for (String code : maps.keySet()) {
+        List<SlidingWindowPriceRes> list = maps.get(code);
+        String json = JSONArray.fromObject(list).toString();
+        String item = code + ":" + "@" + "time:" + time + "@" + "content:" + json;
+        bfw.write(item);
+        bfw.newLine();
+      }
+      bfw.flush();
+
+    } catch (IOException e) {
+      log_error.error("create file error", e);
+    } finally {
+      try {
+        bfw.close();
+        fw.close();
+      } catch (IOException e) {
+        log_error.error("close file error:", e);
+      }
+    }
+  }
+
 }

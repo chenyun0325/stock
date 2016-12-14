@@ -40,7 +40,7 @@ public class Bolt2 extends BaseBasicBolt {
 
   Map<String, List<FsIndexRes>> code_yd_map = new ConcurrentHashMap<String, List<FsIndexRes>>();//存储股票压单数据
 
-  Map<String, List<FsIndexRes>> code_td_map = new ConcurrentHashMap<String, List<FsIndexRes>>();//存储股票托单数据
+  Map<String, List<FsIndexRes>> code_td_map = new ConcurrentHashMap<>();//存储股票托单数据
 
   Map<String,String> code_hash_map = new ConcurrentHashMap<>();//存储上一个股票的分时hash,防止同一个数据进入多次
 
@@ -206,7 +206,7 @@ public class Bolt2 extends BaseBasicBolt {
     FileWriter fw = null;
     BufferedWriter bfw = null;
     try {
-      fw = new FileWriter(fileName, true);
+      fw = new FileWriter(fileName, false);
       bfw = new BufferedWriter(fw);
       long time = System.currentTimeMillis();
       for (String code : maps.keySet()) {
