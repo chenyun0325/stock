@@ -1,6 +1,7 @@
 package datacrawler;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
@@ -23,6 +24,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -171,11 +174,22 @@ public class HtmlAnalysis {
     try {
       fw = new FileWriter(outfile,false);
       bfw = new BufferedWriter(fw);
-      for (SdLtHolderAnalysisRes retainItem : Collections2
-          .filter(analysisResList, resFilter)) {
-        printRes(retainItem,bfw);
-        stock_count++;
+      List<String> reduceList = reduce(Collections2.filter(analysisResList, resFilter));
+      Collections.sort(reduceList, new Comparator<String>() {
+        @Override
+        public int compare(String o1, String o2) {
+          return o2.length()-o1.length();
+        }
+      });
+      for (String printStr : reduceList) {
+        bfw.write(printStr);
+        bfw.newLine();
       }
+//      for (SdLtHolderAnalysisRes retainItem : Collections2
+//          .filter(analysisResList, resFilter)) {
+//        printRes(retainItem,bfw);
+//        stock_count++;
+//      }
       bfw.flush();//输出
     } catch (IOException e) {
       log_error.error("create file error",e);
@@ -369,6 +383,36 @@ public class HtmlAnalysis {
       maps.put(array[0],array[1]);
     }
     return maps;
+  }
+
+  public static List<String> reduce(Collection<SdLtHolderAnalysisRes> resList){
+    List<String> reduceList = new ArrayList<>();
+    Map<String, List<SdLtHolderAnalysisRes>> hashMap = new HashMap<>();
+    for (SdLtHolderAnalysisRes item : resList) {
+      String key1 = item.getKey1();
+      List<SdLtHolderAnalysisRes> keyList = hashMap.get(key1);
+      if (keyList == null) {
+        keyList = new ArrayList<>();
+        keyList.add(item);
+      }else {
+        keyList.add(item);
+      }
+      hashMap.put(key1,keyList);
+    }
+    for (String key : hashMap.keySet()) {
+      List<SdLtHolderAnalysisRes> keyList = hashMap.get(key);
+      List<String> keys = new ArrayList<>();
+      List<String> orgs = new ArrayList<>();
+      for (SdLtHolderAnalysisRes item : keyList) {
+        String key2 = item.getKey2();
+        String org = JSONArray.fromObject(item.getCrossName()).toString();
+        keys.add(key2);
+        orgs.add(org);
+      }
+      String resPrint = String.format(format_print, key, Joiner.on("#").join(keys), Joiner.on("#").join(orgs));
+      reduceList.add(resPrint);
+    }
+    return reduceList;
   }
 
 }

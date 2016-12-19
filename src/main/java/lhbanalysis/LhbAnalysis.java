@@ -24,6 +24,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -60,7 +62,7 @@ public class LhbAnalysis {
           Set<String> filterSet = new HashSet<String>();
           for (String item : cosSet) {
             String[] split = item.split("___");
-            if (split[0].length()>5){//过滤条件
+            if (!split[0].contains("机构专用")){//过滤条件
               filterSet.add(item);
             }
           }
@@ -137,10 +139,17 @@ public class LhbAnalysis {
       BufferedWriter bfw = null;
       int stock_count=0;
       try {
-        String outfile =dir+"/"+firstKey+"_"+lastKey+".txt";
+        String outfile =dir+"/"+"res_"+firstKey+"_"+lastKey+".txt";
         fw = new FileWriter(outfile,false);
         bfw = new BufferedWriter(fw);
-        List<String> reduceList = reduce(Collections2.filter(analysisResList, resFilter));
+        Collection<SdLtHolderAnalysisRes> resFilterCol = Collections2.filter(analysisResList, resFilter);
+        List<String> reduceList = reduce(resFilterCol);
+        Collections.sort(reduceList, new Comparator<String>() {
+          @Override
+          public int compare(String o1, String o2) {
+            return o2.length()-o1.length();
+          }
+        });
         for (String printStr : reduceList) {
           bfw.write(printStr);
           bfw.newLine();
