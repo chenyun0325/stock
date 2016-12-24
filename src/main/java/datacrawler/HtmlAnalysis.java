@@ -10,6 +10,10 @@ import com.google.common.collect.Sets;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,8 +23,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,6 +50,9 @@ public class HtmlAnalysis {
   public static final String dir = "D:/stock_data/holders";
 
   public static final String outfile = "D:/stock_data/holders/stocks_analysis.txt";
+
+  public static final String outfileExcel = "D:/stock_data/holders/stocks_analysis.xls";
+
 
   public static final String split="@";
 
@@ -201,8 +211,15 @@ public class HtmlAnalysis {
         log_error.error("close file error:",e);
       }
     }
-    //System.out.println("-------------xxx");
-    System.out.println(stock_count);
+    //excel输出
+    try {
+      FileOutputStream os = new FileOutputStream(outfileExcel);
+      excel_output(Collections2.filter(analysisResList, resFilter),os);
+     os.close();
+    } catch (Exception e) {
+      log_error.error("excel 输出错误:",e);
+    }
+
   }
 
   /**
@@ -413,6 +430,55 @@ public class HtmlAnalysis {
       reduceList.add(resPrint);
     }
     return reduceList;
+  }
+
+  public static void excel_output(Collection<SdLtHolderAnalysisRes> resList, OutputStream out)
+      throws IOException {
+    Map<String, List<SdLtHolderAnalysisRes>> hashMap = new HashMap<>();
+    for (SdLtHolderAnalysisRes item : resList) {
+      String key1 = item.getKey1();
+      List<SdLtHolderAnalysisRes> keyList = hashMap.get(key1);
+      if (keyList == null) {
+        keyList = new ArrayList<>();
+        keyList.add(item);
+      }else {
+        keyList.add(item);
+      }
+      hashMap.put(key1,keyList);
+    }
+    HSSFWorkbook wb = new HSSFWorkbook();
+    HSSFSheet sheet = wb.createSheet();
+    HSSFRow titleRow = sheet.createRow(0);//写标题
+    HSSFCell cell0 = titleRow.createCell(0, HSSFCell.CELL_TYPE_STRING);
+    HSSFCell cell1 = titleRow.createCell(1, HSSFCell.CELL_TYPE_STRING);
+    HSSFCell cell2 = titleRow.createCell(2, HSSFCell.CELL_TYPE_STRING);
+    HSSFCell cell3 = titleRow.createCell(3, HSSFCell.CELL_TYPE_STRING);
+    cell0.setCellValue("股票代码");
+    cell1.setCellValue("被匹配股票代码");
+    cell2.setCellValue("日期");
+    cell3.setCellValue("共同股东");
+    int writeIndex=1;//写入位置
+    HSSFRow row ;
+    for (String key : hashMap.keySet()) {
+      //处理基期数据
+      String[] code_date = key.split("_");
+      row = sheet.createRow(writeIndex);
+      row.createCell(0, HSSFCell.CELL_TYPE_STRING).setCellValue(code_date[0]);
+      row.createCell(2, HSSFCell.CELL_TYPE_STRING).setCellValue(code_date[1]);
+      writeIndex++;
+      List<SdLtHolderAnalysisRes> keyList = hashMap.get(key);
+      for (SdLtHolderAnalysisRes item : keyList) {
+        String key2 = item.getKey2();
+        String org = JSONArray.fromObject(item.getCrossName()).toString();
+        String[] code_date_sp = key2.split("_");
+        row = sheet.createRow(writeIndex);
+        row.createCell(1, HSSFCell.CELL_TYPE_STRING).setCellValue(code_date_sp[0]);
+        row.createCell(2, HSSFCell.CELL_TYPE_STRING).setCellValue(code_date_sp[1]);
+        row.createCell(3,HSSFCell.CELL_TYPE_STRING).setCellValue(org);
+        writeIndex++;
+      }
+    }
+    wb.write(out);
   }
 
 }

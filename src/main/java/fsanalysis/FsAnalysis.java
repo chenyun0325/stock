@@ -6,12 +6,20 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 
+import net.sf.json.JSONArray;
+
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,8 +27,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import datacrawler.HtmlAnalysis;
 import db.DbConnection;
 
 /**
@@ -88,6 +99,16 @@ public class FsAnalysis {
         } catch (IOException e) {
           log_error.error("close file error:", e);
         }
+      }
+
+      //excel输出
+      try {
+        String outfileExcel=outfile+fsResDisplay.getFile_name()+".xls";
+        FileOutputStream os = new FileOutputStream(outfileExcel);
+        excel_output(fsResDisplay.getResList(),fsResDisplay.getLj_item(),os);
+        os.close();
+      } catch (Exception e) {
+        log_error.error("excel 输出错误:",e);
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -346,5 +367,54 @@ public class FsAnalysis {
       log_error.error("append error context:{}", resPrint);
     }
 
+  }
+
+  public static void excel_output(List<FsRes> resList,FsRes total, OutputStream out)
+      throws IOException {
+    HSSFWorkbook wb = new HSSFWorkbook();
+    HSSFSheet sheet = wb.createSheet();
+    HSSFRow titleRow = sheet.createRow(0);//写标题
+    titleRow.createCell(0, HSSFCell.CELL_TYPE_STRING).setCellValue("时间区间");
+    titleRow.createCell(1, HSSFCell.CELL_TYPE_STRING).setCellValue("股票代码");
+    titleRow.createCell(2, HSSFCell.CELL_TYPE_STRING).setCellValue("开始时间");
+    titleRow.createCell(3, HSSFCell.CELL_TYPE_STRING).setCellValue("结束时间");
+    titleRow.createCell(4, HSSFCell.CELL_TYPE_STRING).setCellValue("买量");
+    titleRow.createCell(5, HSSFCell.CELL_TYPE_STRING).setCellValue("卖量");
+    titleRow.createCell(6, HSSFCell.CELL_TYPE_STRING).setCellValue("买卖差");
+    titleRow.createCell(7, HSSFCell.CELL_TYPE_STRING).setCellValue("买入金额");
+    titleRow.createCell(8, HSSFCell.CELL_TYPE_STRING).setCellValue("卖出金额");
+    titleRow.createCell(9, HSSFCell.CELL_TYPE_STRING).setCellValue("买卖金额差");
+    titleRow.createCell(10, HSSFCell.CELL_TYPE_STRING).setCellValue("增量资金");
+
+    HSSFRow totalRow = sheet.createRow(1);
+    totalRow.createCell(0, HSSFCell.CELL_TYPE_STRING).setCellValue("T_All");
+    totalRow.createCell(1, HSSFCell.CELL_TYPE_STRING).setCellValue(total.getCode());
+    totalRow.createCell(2, HSSFCell.CELL_TYPE_STRING).setCellValue(total.getBegin());
+    totalRow.createCell(3, HSSFCell.CELL_TYPE_STRING).setCellValue(total.getEnd());
+    totalRow.createCell(4, HSSFCell.CELL_TYPE_STRING).setCellValue(total.getBuy());
+    totalRow.createCell(5, HSSFCell.CELL_TYPE_STRING).setCellValue(total.getSale());
+    totalRow.createCell(6, HSSFCell.CELL_TYPE_STRING).setCellValue(total.getDiff_v());
+    totalRow.createCell(7, HSSFCell.CELL_TYPE_STRING).setCellValue(total.getAmount_b());
+    totalRow.createCell(8, HSSFCell.CELL_TYPE_STRING).setCellValue(total.getAmount_s());
+    totalRow.createCell(9, HSSFCell.CELL_TYPE_STRING).setCellValue(total.getAmount_diff());
+    totalRow.createCell(10, HSSFCell.CELL_TYPE_STRING).setCellValue(total.getAmount_var());
+    HSSFRow row ;
+    int writeIndex=2;
+    for (FsRes fsRes : resList) {
+      row = sheet.createRow(writeIndex);
+      row.createCell(0, HSSFCell.CELL_TYPE_STRING).setCellValue("T"+(writeIndex-1));
+      row.createCell(1, HSSFCell.CELL_TYPE_STRING).setCellValue(fsRes.getCode());
+      row.createCell(2, HSSFCell.CELL_TYPE_STRING).setCellValue(fsRes.getBegin());
+      row.createCell(3, HSSFCell.CELL_TYPE_STRING).setCellValue(fsRes.getEnd());
+      row.createCell(4, HSSFCell.CELL_TYPE_STRING).setCellValue(fsRes.getBuy());
+      row.createCell(5, HSSFCell.CELL_TYPE_STRING).setCellValue(fsRes.getSale());
+      row.createCell(6, HSSFCell.CELL_TYPE_STRING).setCellValue(fsRes.getDiff_v());
+      row.createCell(7, HSSFCell.CELL_TYPE_STRING).setCellValue(fsRes.getAmount_b());
+      row.createCell(8, HSSFCell.CELL_TYPE_STRING).setCellValue(fsRes.getAmount_s());
+      row.createCell(9, HSSFCell.CELL_TYPE_STRING).setCellValue(fsRes.getAmount_diff());
+      row.createCell(10, HSSFCell.CELL_TYPE_STRING).setCellValue(fsRes.getAmount_var());
+      writeIndex++;
+    }
+    wb.write(out);
   }
 }

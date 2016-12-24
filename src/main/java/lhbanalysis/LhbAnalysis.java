@@ -36,6 +36,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import datacrawler.HtmlAnalysis;
 import datacrawler.SdLtHolderAnalysisRes;
 import fsanalysis.DateUtil;
 
@@ -170,8 +171,15 @@ public class LhbAnalysis {
           log_error.error("close file error:",e);
         }
       }
-      //System.out.println("-------------xxx");
-      System.out.println(stock_count);
+      //excel输出
+      try {
+        String outfileExcel =dir+"/"+"res_"+firstKey+"_"+lastKey+".xls";
+        FileOutputStream os = new FileOutputStream(outfileExcel);
+        HtmlAnalysis.excel_output(Collections2.filter(analysisResList, resFilter),os);
+        os.close();
+      } catch (Exception e) {
+        log_error.error("excel 输出错误:",e);
+      }
 
       }catch(IOException e){
         log_error.error("", e);
