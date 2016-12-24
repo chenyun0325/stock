@@ -32,7 +32,7 @@ import fsrealanalysis.SlidingWindowPriceRes;
  * Created by cy111966 on 2016/12/3. 1.计算方差 2.滑动窗口算法 3.math common http://www.bubuko.com/infodetail-542704.html
  * http://commons.apache.org/proper/commons-math/apidocs/org/apache/commons/math4/stat/descriptive/DescriptiveStatistics.html
  */
-public class SlidingWindowBolt extends BaseBasicBolt {
+public class SlidingWindowBolt_back extends BaseBasicBolt {
 
   static Logger log_error = LoggerFactory.getLogger("errorfile");
   static Logger biz_log = LoggerFactory.getLogger("biz");
@@ -117,8 +117,8 @@ public class SlidingWindowBolt extends BaseBasicBolt {
     }.start();
   }
 
-  public SlidingWindowBolt(int max_size, int wind_size, double price_dif_var, double amount,
-                           double price_dif_var1, double amount1) {
+  public SlidingWindowBolt_back(int max_size, int wind_size, double price_dif_var, double amount,
+                                double price_dif_var1, double amount1) {
     this.max_size = max_size;
     this.wind_size = wind_size;
     this.price_dif_var = price_dif_var;

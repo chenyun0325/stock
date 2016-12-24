@@ -33,17 +33,13 @@ import fsrealanalysis.SlidingWindowPriceRes;
 /**
  * Created by chenyun on 16/2/2.
  */
-public class Bolt2 extends BaseBasicBolt {
+public class Bolt2_back extends BaseBasicBolt {
 
   static Logger log_error = LoggerFactory.getLogger("errorfile");
 
   Map<String, List<FsData>> code_map = new ConcurrentHashMap<String, List<FsData>>();//存储股票分时数据
 
-  // todo 第一key：业务规则组合,第二key：股票代码
-
-  Map<String,Map<String, List<FsIndexRes>>> code_map_multi = new ConcurrentHashMap<>();
-
-  Map<String, List<FsIndexRes>> code_yd_map = new ConcurrentHashMap<>();//存储股票压单数据
+  Map<String, List<FsIndexRes>> code_yd_map = new ConcurrentHashMap<String, List<FsIndexRes>>();//存储股票压单数据
 
   Map<String, List<FsIndexRes>> code_td_map = new ConcurrentHashMap<>();//存储股票托单数据
 
@@ -66,7 +62,7 @@ public class Bolt2 extends BaseBasicBolt {
   private String yd_file ="D:/stock_data/holders/yd";
   private String td_file ="D:/stock_data/holders/td";
 
-  public Bolt2(double filter_mount, double filter_per, int slide_size) {
+  public Bolt2_back(double filter_mount, double filter_per, int slide_size) {
     this.filter_mount = filter_mount;
     this.filter_per = filter_per;
     this.slide_size = slide_size;
