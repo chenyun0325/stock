@@ -17,13 +17,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import backtype.storm.topology.BasicOutputCollector;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseBasicBolt;
-import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.MessageId;
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
+import org.apache.storm.topology.BasicOutputCollector;
+import org.apache.storm.topology.OutputFieldsDeclarer;
+import org.apache.storm.topology.base.BaseBasicBolt;
+import org.apache.storm.tuple.Fields;
+import org.apache.storm.tuple.MessageId;
+import org.apache.storm.tuple.Tuple;
+import org.apache.storm.tuple.Values;
 import fsanalysis.DateUtil;
 import fsrealanalysis.FsData;
 import fsrealanalysis.FsIndexRes;
@@ -32,6 +32,8 @@ import fsrealanalysis.SlidingWindowPriceRes;
 
 /**
  * Created by chenyun on 16/2/2.
+ * 定时发射数据
+ * http://www.2cto.com/net/201605/512041.html
  */
 public class Bolt2 extends BaseBasicBolt {
 
@@ -76,6 +78,7 @@ public class Bolt2 extends BaseBasicBolt {
     try {
       String code = input.getString(0);
       Object item = input.getValue(1);
+      System.out.println(code);
       JSONObject item_json = JSONObject.fromObject(item);
       FsData fsdata = (FsData) JSONObject.toBean(item_json, FsData.class);
       code_map = transfer(code_map, code, fsdata);

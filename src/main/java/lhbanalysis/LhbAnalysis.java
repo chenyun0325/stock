@@ -74,7 +74,7 @@ public class LhbAnalysis {
     try {
       //1.加载数据
       String start="20161008";
-      String end="20161221";
+      String end="20161229";
       Map<String, List<LhbItemJG>> loadMap = load(start, end);
       //2.构造比较集合
       TreeMap<String, List<LhbItemJG>> treeMap = new TreeMap<>();

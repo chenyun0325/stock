@@ -5,12 +5,12 @@ import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
 
-import backtype.storm.Config;
-import backtype.storm.LocalCluster;
-import backtype.storm.generated.AuthorizationException;
-import backtype.storm.topology.BoltDeclarer;
-import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.tuple.Fields;
+import org.apache.storm.Config;
+import org.apache.storm.LocalCluster;
+import org.apache.storm.generated.AuthorizationException;
+import org.apache.storm.topology.BoltDeclarer;
+import org.apache.storm.topology.TopologyBuilder;
+import org.apache.storm.tuple.Fields;
 import datacrawler.Constant;
 
 // The topology
@@ -64,7 +64,8 @@ public class WordCount {
     //New configuration
     Config conf = new Config();
     conf.put(Config.TOPOLOGY_DEBUG, false);
-    conf.put(Config.SUPERVISOR_WORKER_TIMEOUT_SECS, 500);
+    //conf.put(Config.SUPERVISOR_WORKER_TIMEOUT_SECS, 500);//CPU飙升
+    conf.put(Config.SUPERVISOR_WORKER_TIMEOUT_SECS, 1000);
 
     LocalCluster cluster = new LocalCluster();
     cluster.submitTopology("test", conf, builder.createTopology());

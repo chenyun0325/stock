@@ -453,10 +453,14 @@ public class HtmlAnalysis {
     HSSFCell cell1 = titleRow.createCell(1, HSSFCell.CELL_TYPE_STRING);
     HSSFCell cell2 = titleRow.createCell(2, HSSFCell.CELL_TYPE_STRING);
     HSSFCell cell3 = titleRow.createCell(3, HSSFCell.CELL_TYPE_STRING);
+    HSSFCell cell4 = titleRow.createCell(4, HSSFCell.CELL_TYPE_STRING);
+    HSSFCell cell5 = titleRow.createCell(5, HSSFCell.CELL_TYPE_STRING);
     cell0.setCellValue("股票代码");
     cell1.setCellValue("被匹配股票代码");
     cell2.setCellValue("日期");
     cell3.setCellValue("共同股东");
+    cell4.setCellValue("数量");
+    cell5.setCellValue("排序字段");
     int writeIndex=1;//写入位置
     HSSFRow row ;
     for (String key : hashMap.keySet()) {
@@ -467,6 +471,7 @@ public class HtmlAnalysis {
       row.createCell(2, HSSFCell.CELL_TYPE_STRING).setCellValue(code_date[1]);
       writeIndex++;
       List<SdLtHolderAnalysisRes> keyList = hashMap.get(key);
+      row.createCell(5,HSSFCell.CELL_TYPE_STRING).setCellValue(keyList.size());
       for (SdLtHolderAnalysisRes item : keyList) {
         String key2 = item.getKey2();
         String org = JSONArray.fromObject(item.getCrossName()).toString();
@@ -475,6 +480,8 @@ public class HtmlAnalysis {
         row.createCell(1, HSSFCell.CELL_TYPE_STRING).setCellValue(code_date_sp[0]);
         row.createCell(2, HSSFCell.CELL_TYPE_STRING).setCellValue(code_date_sp[1]);
         row.createCell(3,HSSFCell.CELL_TYPE_STRING).setCellValue(org);
+        row.createCell(4,HSSFCell.CELL_TYPE_STRING).setCellValue(item.getCrossName().size());
+        row.createCell(5,HSSFCell.CELL_TYPE_STRING).setCellValue(keyList.size());
         writeIndex++;
       }
     }
