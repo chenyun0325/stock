@@ -24,8 +24,8 @@ public class PythonShell {
       String cmd="python fsdata_load.py 000798 2016-12-25 2016-12-27";
       System.out.println(cmd);
       Runtime rt = Runtime.getRuntime();
-      String command="python fsdata_load.py 000798 2016-12-25 2016-12-27";
-      Process pcs = rt.exec(cmd);
+      String command="python "+urlPath+" 000798 2016-12-25 2016-12-27";
+      Process pcs = rt.exec(command);
       InputStream pcsInputStream = pcs.getInputStream();
       InputStream pcsErrorStream = pcs.getErrorStream();
       BufferedReader br = new BufferedReader(new InputStreamReader(pcsInputStream));

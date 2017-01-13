@@ -12,7 +12,7 @@ public class DbConnection {
   public static Connection getConn(){
     Connection con=null;
     String driver="com.mysql.jdbc.Driver";
-    String url="jdbc:mysql://localhost:3306/db_test?useUnicode=true&amp;characterEncoding=utf-8";
+    String url="jdbc:mysql://localhost:3306/db_test?useUnicode=true&characterEncoding=utf-8";
     String username="root";
     String password="123456";
     try {
