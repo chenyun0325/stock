@@ -33,10 +33,20 @@ class FsRealSpout(storm.Spout):
         if flag:
            flag = False
            try:
-               results = ts.get_realtime_quotes(sys.argv[1].split(','))
+               code_list = sys.argv[1].split(',')
+               batch = int(sys.argv[2])
+               total = code_list.__len__()
+               batch_size = total // batch
+               for i in range(batch+1):
+                   begin_index = i * batch_size
+                   end_index = (i + 1) * batch_size
+                   if end_index > total:
+                       end_index = total
+                   code_list_split = code_list.__getslice__(begin_index, end_index)
+                   results = ts.get_realtime_quotes(code_list_split)
         #results.drop('name',axis=1,inplace=True)
         #等待执行完毕
-               for i,row in results.iterrows():
+                   for i,row in results.iterrows():
                      code = row['code']
                      json={}
                      json['name']=row['name']

@@ -73,9 +73,9 @@ class FsRealSpout(storm.Spout):
                      json['a5_p']=row['a5_p']
                      json['a5_v']=row['a5_v']
                      #json['arg']=sys.argv[1]
-                     #sentence = random.choice(SENTENCES)
-                     #storm.logInfo("Emiting %s" % sentence)
-                     #storm.logInfo("Emiting code:%s row:%s" %(code,json))
+                     sentence = random.choice(SENTENCES)
+                     storm.logInfo("Emiting %s" % sentence)
+                     storm.logInfo("Emiting code:%s row:%s" %(code,json))
                      storm.emit([code,json])
                flag=True
            except Exception,e:
